@@ -1,0 +1,29 @@
+# astrolift-sample-batch — CRONJOB variant (spec 42, R6 / §4 CRONJOB skeleton).
+#
+# Renders a k8s CronJob: chronicle.py appends one timestamped line per tick.
+# Per the backend parser (astrolift_manifest/parser.py), kind="cronjob"
+# REQUIRES a `schedule`, and `concurrency_policy` must be one of
+# {forbid, queue, replace}. Both are set explicitly below.
+#
+# image_ref is the pre-built Docker Hub image (no platform build this
+# increment, spec 42 §5); deploy pins the deterministic main-<sha7> tag.
+name = "astrolift-sample-batch"
+
+[[workloads]]
+name = "chronicle"
+kind = "cronjob"
+schedule = "0 * * * *"          # top of every hour
+concurrency_policy = "forbid"   # never overlap ticks
+
+  [[workloads.containers]]
+  name = "job"
+  is_primary = true
+  image_ref = "docker.io/calliopeai/astrolift-sample-batch:main-<sha>"
+  command = ["python", "chronicle.py"]
+
+    [workloads.containers.env]
+    LOG_LEVEL = "info"
+    # Optional: set a path to also append each tick to a file (e.g. a mounted
+    # volume) so persistence across scheduled runs can be observed. Left unset
+    # here — chronicle.py logs to stdout regardless.
+    # CHRONICLE_LOG_PATH = "/var/log/chronicle/ticks.log"

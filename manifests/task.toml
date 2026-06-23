@@ -1,0 +1,21 @@
+# astrolift-sample-batch — TASK variant (spec 42, R6 / §4 TASK skeleton).
+#
+# A one-off "seed/migrate" job. Uses the top-level [[tasks]] shorthand, which
+# the backend parser (astrolift_manifest/parser.py, _desugar_task) lifts into a
+# kind="task" workload: a bare batch/v1 Job (completions=1, backoffLimit=0)
+# with NO schedule and NO concurrency policy — it runs to completion once and
+# is not rescheduled. The task's container is implicitly is_primary, port=0,
+# healthcheck="none".
+#
+# image_ref is the same pre-built Docker Hub image as the cron variant; only
+# the command differs (seed.py instead of chronicle.py). Deploy pins the
+# deterministic main-<sha7> tag.
+name = "astrolift-sample-batch"
+
+[[tasks]]
+name = "seed"
+image_ref = "docker.io/calliopeai/astrolift-sample-batch:main-<sha>"
+command = ["python", "seed.py"]
+
+  [tasks.env]
+  LOG_LEVEL = "info"

@@ -1,0 +1,8 @@
+# Keep the build context to just the source files the Dockerfile copies.
+.git
+.github
+manifests
+README.md
+__pycache__
+*.pyc
+.DS_Store
